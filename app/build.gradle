@@ -1,0 +1,29 @@
+apply plugin: 'com.android.application'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+dependencies {
+    //compile 'com.google.apis:google-api-services-youtube:v3-rev139-1.20.0'
+    compile 'com.android.support:appcompat-v7:22.2.0'
+    compile "com.mixpanel.android:mixpanel-android:4.6.0"
+    compile "com.google.android.gms:play-services:7.5.0"
+}
+
+android {
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
+
+    defaultConfig {
+        applicationId "com.ryanseams.music_finder"
+        minSdkVersion 15
+        targetSdkVersion 22
+        versionCode 1
+        versionName "1.0"
+    }
+}

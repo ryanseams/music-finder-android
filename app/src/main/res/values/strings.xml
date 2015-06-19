@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">music-finder</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_login">Login</string>
+    <string name="title_activity_signup">Signup</string>
+    <string name="title_activity_landing">Landing</string>
+
+    <string-array name="genre_array">
+        <item>Country</item>
+        <item>Pop</item>
+        <item>Rap</item>
+        <item>Rock</item>
+        <item>Top 40</item>
+    </string-array>
+    <string name="title_activity_you_tube_player">YouTubePlayer</string>
+    <string name="title_activity_you_tube">YouTubeActivity</string>
+
+</resources>
