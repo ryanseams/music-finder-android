@@ -1,14 +1,3 @@
-<!--
-To get your application working with Mixpanel (particularly for push notifications),
-you will need to make some changes to your application manifest file.
-You can use this file as a model for the sorts of changes required. Be aware that
-you will need to replace "com.mixpanel.example.hello" with your application package
-name in several places before your application will work.
-
-<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-package="com.ryanseams.music_finder" >-->
-
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.ryanseams.music_finder"
     android:versionCode="1"
@@ -18,41 +7,31 @@ package="com.ryanseams.music_finder" >-->
         android:minSdkVersion="9"
         android:targetSdkVersion="22" />
 
-    <!--
-      This permission is required to allow the application to send events and properties to Mixpanel.
-     -->
+    <!-- This permission is required to allow the application to send events and properties to Mixpanel. -->
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <!--
-      This permission is optional but recommended so we can be smart about when to send data.
-     -->
-
+    <!-- This permission is optional but recommended so Mixpanel can be smart about when to send data. -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-    <!--
-      This permission is optional but recommended so events will contain information about bluetooth state
-    -->
+    <!-- This permission is optional but recommended so events will contain information about bluetooth state. -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
 
-    <!--
-      These permissions are required to allow the application to receive and display
-      Google Cloud Messaging notifications from Mixpanel.
-     -->
+    <!-- These permissions are required to allow the application to receive and display
+      Google Cloud Messaging notifications from Mixpanel. -->
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
-
-    <!--
-      This custom permission is also required for Google Cloud Messaging. In your
+    <!-- This custom permission is also required for Google Cloud Messaging. In your
       own applications, you will need to be sure that the permission name is
            ${application_package}.C2D_MESSAGE
-      Where ${application_package} is the package name declared in your <manifest> element.
-     -->
+      Where ${application_package} is the package name declared in your <manifest> element. -->
     <permission android:name="com.ryanseams.music_finder.permission.C2D_MESSAGE" android:protectionLevel="signature" />
     <uses-permission android:name="com.ryanseams.music_finder.permission.C2D_MESSAGE" />
 
-
+    <!-- The below defines the structure of this application. Your activity structure
+      may be different but some of the <meta-data> and <receiver> tags will also be
+      utilized inside your <application> tag as well -->
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -84,7 +63,7 @@ package="com.ryanseams.music_finder" >-->
             android:label="@string/title_activity_you_tube" >
         </activity>
 
-        <!-- to support 2.2 (Froyo) and older devices, your application should allow fallback
+        <!-- To support 2.2 (Froyo) and older devices, your application should allow fallback
              to HTTP if modern HTTPS certificates aren't supported. -->
         <meta-data android:name="com.mixpanel.android.MPConfig.DisableFallback"
             android:value="false" />
@@ -100,7 +79,7 @@ package="com.ryanseams.music_finder" >-->
              This will allow you to tweak your surveys or in app notifications without having to create
              a new one each time. -->
         <meta-data android:name="com.mixpanel.android.MPConfig.TestMode"
-            android:value="true" />
+            android:value="false" />
 
         <!-- This will enable various debugging messages that shows communication between the Mixpanel
              Android library and the Mixpanel API servers, which are useful for seeing when track requests
@@ -111,10 +90,12 @@ package="com.ryanseams.music_finder" >-->
         <!-- This activity allows your application to show Mixpanel surveys and takeover in app notifications.
              If you only wish to show mini in app notifications, you do not need to declare this Activity.
              You may also specify a different theme to better fit the look and feel of your application. -->
-        <!--<activity android:name="com.mixpanel.android.surveys.SurveyActivity"
-            android:theme="@style/com_mixpanel_android_SurveyActivityTheme"/> -->
+        <activity android:name="com.mixpanel.android.surveys.SurveyActivity"
+            android:theme="@style/com_mixpanel_android_SurveyActivityTheme"/>
 
-        <!-- This receiver will allow your application to register for and receive Mixpanel push notifications -->
+        <!-- This receiver will allow your application to register for and receive Mixpanel push notifications
+          using the built-in Mixpanel methods and receiver. This will need to be removed if you plan on
+          creating and using custom push receivers. -->
         <receiver android:name="com.mixpanel.android.mpmetrics.GCMReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>

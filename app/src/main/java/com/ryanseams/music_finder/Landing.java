@@ -1,24 +1,18 @@
 package com.ryanseams.music_finder;
 
 import android.content.Intent;
-import android.media.Image;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
-
-import com.mixpanel.android.mpmetrics.MixpanelAPI;
-import com.ryanseams.music_finder.R;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Landing extends MainActivity {
 
+    // Set Google API credentials and video ID for playing YouTube videos
     public static final String GOOGLE_API_KEY = "AIzaSyD_7WL8yfcVnmVyDjf2HgCbpdlz4lEr0M0";
     public static final String YOUTUBE_VIDEO_ID = "mIJGnsO-FfI";
 
@@ -27,25 +21,16 @@ public class Landing extends MainActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_landing);
 
+        // Track that the user viewed the landing screen
         JSONObject props = new JSONObject();
-
         try {
             props.put("Screen", "Landing");
         } catch (JSONException e) {
             Log.e("Send", "Unable to add properties to JSONObject", e);
         }
-
         mixpanel.track("Viewed Screen", props);
 
-        Button test = (Button) findViewById(R.id.button);
-        test.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                //let's call an intent on the click
-                Intent intent = new Intent(Landing.this, YouTubeActivity.class);
-                startActivity(intent);
-            }
-        });
-
+        // Launch YouTube Activity to handle YouTube video when play button is clicked
         ImageView image = (ImageView) findViewById(R.id.imageView);
         image.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -56,25 +41,27 @@ public class Landing extends MainActivity {
         });
     }
 
-    /** Called when the user clicks the Back button */
+    /** Called when the user clicks the Sign Out button */
     public void goToHome(View view) {
 
+        // Track that the user signed out using button
         JSONObject props = new JSONObject();
         JSONObject superprops = new JSONObject();
-
         try {
             superprops.put("Logged In", false);
             props.put("Screen", "Landing");
         } catch (JSONException e) {
             Log.e("Send", "Unable to add properties to JSONObject", e);
         }
-
         mixpanel.registerSuperProperties(superprops);
         mixpanel.track("Signed Out", props);
 
+        // Go to the MainActivity and switch screens
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
+
+    // Below is all system default config for options menu
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

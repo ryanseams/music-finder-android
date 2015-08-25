@@ -1,7 +1,6 @@
 package com.ryanseams.music_finder;
 
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -10,17 +9,13 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
-
-import com.mixpanel.android.mpmetrics.MixpanelAPI;
-import com.ryanseams.music_finder.R;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.Date;
 
 public class Signup extends MainActivity {
 
+    // Create the spinner object for picking a genre of music
     private static Spinner spinner;
 
     @Override
@@ -37,20 +32,20 @@ public class Signup extends MainActivity {
         // Apply the adapter to the spinner
         spinner.setAdapter(adapter);
 
+        // Track that the user viewed the signup screen
         JSONObject props = new JSONObject();
-
         try {
             props.put("Screen", "Signup");
         } catch (JSONException e) {
             Log.e("Send", "Unable to add properties to JSONObject", e);
         }
-
         mixpanel.track("Viewed Screen", props);
-
     }
 
     /** Called when the user clicks the Signup button */
     public void goToLanding(View view) {
+
+        // Take the user inputs from the screen
         EditText first = (EditText) findViewById(R.id.first_name);
         EditText last = (EditText) findViewById(R.id.last_name);
         EditText email = (EditText) findViewById(R.id.email);
@@ -58,27 +53,31 @@ public class Signup extends MainActivity {
         Spinner spinner = (Spinner) findViewById(R.id.spinner_genre);
         String genre = spinner.getSelectedItem().toString();
 
-        JSONObject props = new JSONObject();
+        // Create super properties for sending with all Mixpanel events regarding user state
         JSONObject superprops = new JSONObject();
-
         try {
             superprops.put("Email", email.getText().toString());
             superprops.put("Name", first.getText().toString() + last.getText().toString());
             superprops.put("Signup Date", new Date());
-            props.put("Genre", genre);
-            props.put("Password", password.getText().toString());
+            superprops.put("Genre", genre);
             superprops.put("Logged In", true);
         } catch (JSONException e) {
             Log.e("Send", "Unable to add properties to JSONObject", e);
         }
-
         mixpanel.registerSuperProperties(superprops);
-        mixpanel.track("Signed Up", props);
-        mixpanel.identify(email.getText().toString());
+
+        // Track that the user signed up for the app
+        mixpanel.track("Signed Up");
+
+        // Create people profile updates for the current user
         mixpanel.getPeople().identify(email.getText().toString());
         mixpanel.getPeople().set(superprops);
         mixpanel.getPeople().increment("Logins", 1);
 
+        // Until you call the below at least once, people updates will not be sent
+        mixpanel.identify(email.getText().toString());
+
+        // Go to the Landing Activity and switch screens
         Intent intent = new Intent(this, Landing.class);
         startActivity(intent);
     }
@@ -86,19 +85,21 @@ public class Signup extends MainActivity {
     /** Called when the user clicks the Back button */
     public void goBack(View view) {
 
+        // Track that the user clicked back button from signup screen
         JSONObject props = new JSONObject();
-
         try {
             props.put("Screen", "Signup");
         } catch (JSONException e) {
             Log.e("Send", "Unable to add properties to JSONObject", e);
         }
-
         mixpanel.track("Login Back", props);
 
+        // Go to the MainActivity and switch screens
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
+
+    // Below is all system default config for options menu
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

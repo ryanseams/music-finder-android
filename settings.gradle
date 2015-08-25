@@ -1,1 +1,7 @@
 include ':app'
+
+// If you wish to utilize a local version of Mixpanel lib not from Maven, please enable the below
+
+// include ':app:libs:mixpanel-android'
+
+// Note that building from local libs requires one other change in the app build.gradle file
