@@ -92,7 +92,7 @@ public class Signup extends MainActivity {
         } catch (JSONException e) {
             Log.e("Send", "Unable to add properties to JSONObject", e);
         }
-        mixpanel.track("Login Back", props);
+        mixpanel.track("Signup Back", props);
 
         // Go to the MainActivity and switch screens
         Intent intent = new Intent(this, MainActivity.class);

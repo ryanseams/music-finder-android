@@ -1,6 +1,7 @@
 package com.ryanseams.music_finder;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,6 +14,8 @@ import com.mixpanel.android.mpmetrics.OnMixpanelUpdatesReceivedListener;
 import com.mixpanel.android.mpmetrics.Tweak;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.List;
 
 public class MainActivity extends Activity {
 
@@ -32,6 +35,10 @@ public class MainActivity extends Activity {
     // We will need the application context later, so create it now
     private static Context context;
 
+    // We will need to use lifecycle callbacks to properly track sessions across activities, so create it now
+    public static MyActivityLifecycleCallbacks state;
+    public static Application app;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,34 +47,8 @@ public class MainActivity extends Activity {
         // Initialize an instance of Mixpanel using context and your project token
         mixpanel = MixpanelAPI.getInstance(this, MIXPANEL_TOKEN);
 
-        // Create super properties for sending with all Mixpanel events
-        JSONObject superprops = new JSONObject();
-        try {
-            superprops.put("Test", "True");
-            superprops.put("Logged In", false);
-            superprops.put("Distinct Id", mixpanel.getDistinctId());
-        } catch (JSONException e) {
-            Log.e("Send", "Unable to add super properties to JSONObject", e);
-        }
-        mixpanel.registerSuperProperties(superprops);
-
-        // Create people profile updates for the current user
-        JSONObject props = new JSONObject();
-        try {
-            props.put("Screen", "Home");
-            props.put("Image", "iPod");
-        } catch (JSONException e) {
-            Log.e("Send", "Unable to add properties to JSONObject", e);
-        }
-
         // Note the above will NOT send the profile information to Mixpanel, the below is still needed to flush people updates
         mixpanel.getPeople().identify(mixpanel.getDistinctId());
-
-        // Start session timer for tracking app session lengths
-        mixpanel.timeEvent("$app_open");
-
-        // Track that the user viewed the home screen
-        mixpanel.track("Viewed Screen", props);
 
         // Initialize Mixpanel to grab the push token of this user so we can use push notifications
         mixpanel.getPeople().initPushHandling(ANDROID_PUSH_SENDER_ID);
@@ -81,25 +62,77 @@ public class MainActivity extends Activity {
                 renderNotifications();
             }
         });
+
+        // Create application lifecycle calllbacks for running whenever activities change states
+        // We will use these callbacks to manage session tracking across the entire app
+        app = (Application) getApplicationContext();
+        state = new MyActivityLifecycleCallbacks(mixpanel);
+        app.registerActivityLifecycleCallbacks(state);
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onStop() {
+        super.onStop();
 
-        // Send the session tracking information to Mixpanel
-        mixpanel.track("$app_open");
+        // Whenever the activity is stopped, unregister the activity lifecycle callbacks
+        // We launch a new thread so that we give the app time to see if a new activity starts
+        // Inside the lifecycle callbacks we check if there are new activities and, if not, then we know the app is backgrounded and a session is tracked
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    synchronized (this) {
+                        wait(100);
+                        app.unregisterActivityLifecycleCallbacks(state);
+                    }
+                } catch (InterruptedException ex) {
+                    Log.d("Lifecycle Callbacks", "Something went wrong tracking sessions");
+                }
+            }
+        };
 
-        // Force all queued Mixpanel data to be sent to Mixpanel
-        mixpanel.flush();
+        thread.start();
     }
 
     @Override
-    protected void onRestart() {
-        super.onRestart();
+    protected void onStart() {
+        super.onStart();
 
-        // Restart session timer for tracking app session lengths
-        mixpanel.timeEvent("$app_open");
+        // Use this method to do all Mixpanel tracking which should only occur for this specific activity (other activities inherit onCreate method)
+        // First we check to see if the MainActivity is the running activity
+        List<String> current = state.getStatus();
+        boolean home = false;
+        for(String s : current) {
+            if(s.trim().contains("MainActivity")) {
+                home = true;
+            }
+        }
+
+        // If this is the MainActivity, track data to Mixpanel for the home screen
+        if(home) {
+            // Create super properties for sending with all Mixpanel events
+            JSONObject superprops = new JSONObject();
+            try {
+                superprops.put("Test", "True");
+                superprops.put("Logged In", false);
+                superprops.put("Distinct Id", mixpanel.getDistinctId());
+            } catch (JSONException e) {
+                Log.e("Send", "Unable to add super properties to JSONObject", e);
+            }
+            mixpanel.registerSuperProperties(superprops);
+
+            // Create properties for tracking the current screen updates for the current user
+            JSONObject props = new JSONObject();
+            try {
+                props.put("Screen", "Home");
+                props.put("Image", "iPod");
+            } catch (JSONException e) {
+                Log.e("Send", "Unable to add properties to JSONObject", e);
+            }
+
+            // Track that the user viewed the home screen
+            mixpanel.track("Viewed Screen", props);
+        }
     }
 
     public void renderNotifications() {
