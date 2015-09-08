@@ -69,7 +69,11 @@ public class Signup extends MainActivity {
         // Track that the user signed up for the app
         mixpanel.track("Signed Up");
 
+        // Create an alias from our unique identifier to the original distinct id
+        mixpanel.alias(email.getText().toString(), mixpanel.getDistinctId());
+
         // Create people profile updates for the current user
+        // Note we can call identify with the alias because the alias call flushes immediately in Android
         mixpanel.getPeople().identify(email.getText().toString());
         mixpanel.getPeople().set(superprops);
         mixpanel.getPeople().increment("Logins", 1);
