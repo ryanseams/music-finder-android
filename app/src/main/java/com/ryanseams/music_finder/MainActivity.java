@@ -63,6 +63,11 @@ public class MainActivity extends Activity {
             }
         });
 
+        // When you are printing Tweak values before an update is received from Mixpanel, the variables will be the default value
+        // These must be updated on receipt of a test inside the OnMixpanelUpdatesReceivedListener before they can be used
+        Log.d("Tweak", "Value of gameSpeed is: " + gameSpeed.get());
+        Log.d("Tweak", "Value of showAds is: " + showAds.get());
+
         // Create application lifecycle calllbacks for running whenever activities change states
         // We will use these callbacks to manage session tracking across the entire app
         app = (Application) getApplicationContext();
@@ -140,6 +145,10 @@ public class MainActivity extends Activity {
         mixpanel.getPeople().joinExperimentIfAvailable();
         mixpanel.getPeople().showNotificationIfAvailable(this);
         mixpanel.getPeople().showSurveyIfAvailable(this);
+
+        // Upon a new A/B test, the Tweak variables will now have the Tweak value provided from Mixpanel
+        Log.d("Tweak", "Value of gameSpeed is: " + gameSpeed.get());
+        Log.d("Tweak", "Value of showAds is: " + showAds.get());
     }
 
     /** Called when the user clicks the Login button */

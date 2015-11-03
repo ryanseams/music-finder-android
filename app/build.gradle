@@ -11,7 +11,7 @@ dependencies {
 dependencies {
     compile 'com.android.support:appcompat-v7:22.2.0'
     compile "com.google.android.gms:play-services:7.5.0"
-    compile "com.mixpanel.android:mixpanel-android:4.6.4"
+    compile "com.mixpanel.android:mixpanel-android:4.7.0"
 
     // If you wish to utilize a local version of Mixpanel not from Maven, please disable the
     // Mixpanel dependency above and replace it with the line below
